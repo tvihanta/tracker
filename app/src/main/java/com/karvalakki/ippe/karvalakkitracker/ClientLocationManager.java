@@ -185,7 +185,7 @@ public class ClientLocationManager extends Service implements LocationListener {
         location = pLocation;
 
         ClientLocationEvent evt = new ClientLocationEvent(location);
-        mEventBus.post(evt);
+        mEventBus.getDefault().post(evt);
     }
 
     @Override

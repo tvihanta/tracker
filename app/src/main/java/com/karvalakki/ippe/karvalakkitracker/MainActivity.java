@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import org.osmdroid.views.MapView;
 
@@ -21,6 +24,8 @@ public class MainActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         MapView mMapView = (MapView)findViewById(R.id.mapview);
 
         mMapManager = new MapManager(this, mMapView);
@@ -53,4 +58,7 @@ public class MainActivity extends ActionBarActivity  {
         return super.onOptionsItemSelected(item);
     }
 
+    public void centerClientClick(View view) {
+        mMapManager.centerOnClient();
+    }
 }

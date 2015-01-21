@@ -32,21 +32,29 @@ public class MapManager implements MapEventsReceiver {
     OverlayManager mOverlayManager;
     MapView mMapView;
     Polyline mPolylineOverlay = null;
-    List<GeoPoint> mTrackerPath = new ArrayList<>();
+
+    PolylineList mTrackerPath = new PolylineList();
+
+    Polyline mClientPolylineOverlay;
+    PolylineList mClientPath = new PolylineList();
+
+    Drawable mClientMarkerIcon ;
 
     public MapManager(Context context, MapView mapview) {
         mMapView = mapview;
         mContext = context;
-        final MapTileProviderBasic tileProvider = new MapTileProviderBasic (context);
 
+        mClientMarkerIcon = mContext.getResources().getDrawable(R.drawable.gpsarrow);
+
+        final MapTileProviderBasic tileProvider = new MapTileProviderBasic (context);
         String[] urls = {"http://tiles.kartat.kapsi.fi/peruskartta/"};
         final ITileSource tileSource = new XYTileSource("kapsi_tms", null, 1, 20, 256, ".jpg", urls);
         tileProvider.setTileSource(tileSource);
         mMapView.setTileSource(tileSource);
 
-        GeoPoint point2 = new GeoPoint(66623298, 25872116);
+        GeoPoint start = new GeoPoint(66623298, 25872116);
 
-        mMapView.getController().setCenter(point2);
+        mMapView.getController().setCenter(start);
         mMapView.getController().setZoom(13);
         mMapView.setMaxZoomLevel(17);
         mMapView.setMinZoomLevel(7);
@@ -56,6 +64,7 @@ public class MapManager implements MapEventsReceiver {
 
         mOverlayManager = mMapView.getOverlayManager();
         setPolyline();
+        createClientPolylineOverlay();
 
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(context, this);
         mMapView.getOverlays().add(0, mapEventsOverlay); //inserted at the "bottom" of all overlays
@@ -66,32 +75,42 @@ public class MapManager implements MapEventsReceiver {
 
     public void clearPaths() {
         mTrackerPath.clear();
+        mClientPath.clear();
         mOverlayManager.remove(mPolylineOverlay);
+        mOverlayManager.remove(mClientPolylineOverlay);
         mPolylineOverlay = null;
+        mClientPath = null;
         mMapView.invalidate();
     }
 
 
     public void onEvent(ClientLocationEvent event) {
-
         Log.v(TAG, "client Gps Event");
         if(event != null && event.loc != null){
+            GeoPoint point = new GeoPoint(event.loc.getLatitude(), event.loc.getLongitude());
             if(mClientMarker == null){
-                addClientMarker(event.loc.getLatitude(),
-                                event.loc.getLongitude(),
+                addClientMarker(point,
                                 event.loc.getBearing()
                                 );
             }else{
-                mClientMarker.setPosition(new GeoPoint(event.loc.getLatitude(), event.loc.getLongitude()));
+                mClientMarker.setPosition(point);
                 mClientMarker.setRotation(event.loc.getBearing());
             }
+
+            //TODO maybe add a setting for showing path
+            if(mClientPath == null){
+                createClientPolylineOverlay();
+            }
+            addPathPoint(point, mClientPath, mClientPolylineOverlay);
+
         }
     }
 
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
         Log.v(TAG, geoPoint.toString());
-        addPathPoint(geoPoint);
+        setPolyline();
+        addPathPoint(geoPoint, mTrackerPath, mPolylineOverlay);
         return false;
     }
 
@@ -108,14 +127,19 @@ public class MapManager implements MapEventsReceiver {
         }
     }
 
-    public void addClientMarker(double lat, double lon, float bearing){
-        GeoPoint point = new GeoPoint(lat,lon);
+    private void createClientPolylineOverlay(){
+        mClientPath = new PolylineList();
+        mClientPolylineOverlay = new Polyline(mContext);
+        mClientPolylineOverlay.setColor(Color.BLUE);
+        mOverlayManager.add(mClientPolylineOverlay);
+    }
+
+    public void addClientMarker(GeoPoint point, float bearing){
         mClientMarker = new Marker(mMapView);
         mClientMarker.setPosition(point);
         mClientMarker.setRotation(bearing);
 
-        Drawable dr = mContext.getResources().getDrawable(R.drawable.gpsarrow);
-        mClientMarker.setIcon(dr);
+        mClientMarker.setIcon(mClientMarkerIcon);
         mClientMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
         mMapView.getOverlays().add(mClientMarker);
     }
@@ -127,10 +151,15 @@ public class MapManager implements MapEventsReceiver {
         mMapView.getOverlays().add(startMarker);
     }
 
-    public void addPathPoint(GeoPoint point){
-        setPolyline();
-        mTrackerPath.add(point);
-        mPolylineOverlay.setPoints(mTrackerPath);
-        mMapView.invalidate();
+    private void addPathPoint(GeoPoint point, PolylineList list, Polyline overlay){
+        if(list != null){
+            list.addItem(point);
+            overlay.setPoints(list.getPath());
+            mMapView.invalidate();
+        }
+    }
+
+    public void centerOnClient() {
+        mMapView.getController().setCenter(mClientMarker.getPosition());
     }
 }
