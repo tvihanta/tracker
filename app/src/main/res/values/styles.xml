@@ -2,12 +2,6 @@
 
     <!-- Base application theme.-->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <item name="android:displayOptions">useLogo</item>
-         Customize your theme here.
     </style>
-    <style name="MyActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:displayOptions">useLogo</item>
-    </style><!---->
 
 </resources>

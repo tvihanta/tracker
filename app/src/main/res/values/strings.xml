@@ -6,4 +6,5 @@
     <string name="action_clear">Clear Paths</string>
     <string name="action_center_client">Center</string>
     <string name="action_center_tracked">Tracker</string>
+    <string name="activity_settings">Settings</string>
 </resources>

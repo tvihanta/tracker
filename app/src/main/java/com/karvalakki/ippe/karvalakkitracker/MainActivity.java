@@ -1,5 +1,6 @@
 package com.karvalakki.ippe.karvalakkitracker;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ public class MainActivity extends ActionBarActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         MapView mMapView = (MapView)findViewById(R.id.mapview);
 
         mMapManager = new MapManager(this, mMapView);
@@ -48,7 +48,7 @@ public class MainActivity extends ActionBarActivity  {
         int id = item.getItemId();
         switch (id){
             case R.id.action_settings:
-                gps.getLocation();
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.action_clear_paths:
                 mMapManager.clearPaths();
