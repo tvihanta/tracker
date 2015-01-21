@@ -3,6 +3,7 @@ package com.karvalakki.ippe.karvalakkitracker;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import com.karvalakki.ippe.karvalakkitracker.R;
@@ -73,16 +74,18 @@ public class MapManager implements MapEventsReceiver {
 
     public void onEvent(ClientLocationEvent event) {
 
-        Log.v(TAG, "eventti");
+        Log.v(TAG, "client Gps Event");
         if(event != null && event.loc != null){
             if(mClientMarker == null){
-                addClientMarker(event.loc.getLatitude(), event.loc.getLongitude());
+                addClientMarker(event.loc.getLatitude(),
+                                event.loc.getLongitude(),
+                                event.loc.getBearing()
+                                );
             }else{
                 mClientMarker.setPosition(new GeoPoint(event.loc.getLatitude(), event.loc.getLongitude()));
+                mClientMarker.setRotation(event.loc.getBearing());
             }
-
         }
-
     }
 
     @Override
@@ -105,11 +108,15 @@ public class MapManager implements MapEventsReceiver {
         }
     }
 
-    public void addClientMarker(double lat, double lon){
+    public void addClientMarker(double lat, double lon, float bearing){
         GeoPoint point = new GeoPoint(lat,lon);
         mClientMarker = new Marker(mMapView);
         mClientMarker.setPosition(point);
-        mClientMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        mClientMarker.setRotation(bearing);
+
+        Drawable dr = mContext.getResources().getDrawable(R.drawable.gpsarrow);
+        mClientMarker.setIcon(dr);
+        mClientMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
         mMapView.getOverlays().add(mClientMarker);
     }
     public void addMarker(GeoPoint point)

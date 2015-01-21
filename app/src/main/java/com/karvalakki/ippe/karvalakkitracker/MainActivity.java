@@ -25,11 +25,6 @@ public class MainActivity extends ActionBarActivity  {
 
         mMapManager = new MapManager(this, mMapView);
         gps = new ClientLocationManager(this);
-        if(gps.canGetLocation()){
-
-        } else {
-            gps.showSettingsAlert();
-        }
     }
 
 

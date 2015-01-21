@@ -46,7 +46,6 @@ public class ClientLocationManager extends Service implements LocationListener {
     public ClientLocationManager(Context context) {
         this.mContext = context;
         getLocation();
-        mEventBus = EventBus.getDefault();
     }
 
     public Location getLocation() {
@@ -79,7 +78,7 @@ public class ClientLocationManager extends Service implements LocationListener {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
                                 ClientLocationEvent evt = new ClientLocationEvent(location);
-                                mEventBus.post(evt);
+                                mEventBus.getDefault().post(evt);
 
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
