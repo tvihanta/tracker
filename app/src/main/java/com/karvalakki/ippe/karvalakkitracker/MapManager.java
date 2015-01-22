@@ -31,13 +31,34 @@ public class MapManager implements MapEventsReceiver {
     private EventBus mEventBus;
     OverlayManager mOverlayManager;
     MapView mMapView;
-    Polyline mPolylineOverlay = null;
 
+
+    private Polyline mPolylineOverlay;
+    public Polyline getmPolylineOverlay() {
+        if(mPolylineOverlay == null)
+        {
+            mPolylineOverlay  = new Polyline(mContext);
+            mPolylineOverlay.setColor(Color.RED);
+            mOverlayManager.add(mPolylineOverlay);
+        }
+        return mPolylineOverlay;
+    }
     PolylineList mTrackerPath = new PolylineList();
 
-    Polyline mClientPolylineOverlay;
-    PolylineList mClientPath = new PolylineList();
 
+
+    private Polyline mClientPolylineOverlay;
+    public Polyline getmClientPolylineOverlay() {
+        if(mClientPolylineOverlay == null){
+            mClientPolylineOverlay = new Polyline(mContext);
+            mClientPolylineOverlay.setColor(Color.BLUE);
+            mOverlayManager.add(mClientPolylineOverlay);
+        }
+
+        return mClientPolylineOverlay;
+    }
+
+    PolylineList mClientPath = new PolylineList();
     Drawable mClientMarkerIcon ;
 
     public MapManager(Context context, MapView mapview) {
@@ -63,8 +84,6 @@ public class MapManager implements MapEventsReceiver {
         mMapView.setMultiTouchControls(true);
 
         mOverlayManager = mMapView.getOverlayManager();
-        setPolyline();
-        createClientPolylineOverlay();
 
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(context, this);
         mMapView.getOverlays().add(0, mapEventsOverlay); //inserted at the "bottom" of all overlays
@@ -79,7 +98,7 @@ public class MapManager implements MapEventsReceiver {
         mOverlayManager.remove(mPolylineOverlay);
         mOverlayManager.remove(mClientPolylineOverlay);
         mPolylineOverlay = null;
-        mClientPath = null;
+        mClientPolylineOverlay = null;
         mMapView.invalidate();
     }
 
@@ -98,10 +117,7 @@ public class MapManager implements MapEventsReceiver {
             }
 
             //TODO maybe add a setting for showing path
-            if(mClientPath == null){
-                createClientPolylineOverlay();
-            }
-            addPathPoint(point, mClientPath, mClientPolylineOverlay);
+            addPathPoint(point, mClientPath, getmClientPolylineOverlay());
 
         }
     }
@@ -109,29 +125,13 @@ public class MapManager implements MapEventsReceiver {
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
         Log.v(TAG, geoPoint.toString());
-        setPolyline();
-        addPathPoint(geoPoint, mTrackerPath, mPolylineOverlay);
+        addPathPoint(geoPoint, mTrackerPath, getmPolylineOverlay());
         return false;
     }
 
     @Override
     public boolean longPressHelper(GeoPoint geoPoint) {
         return false;
-    }
-
-    public void setPolyline(){
-        if(mPolylineOverlay == null){
-            mPolylineOverlay  = new Polyline(mContext);
-            mPolylineOverlay.setColor(Color.RED);
-            mOverlayManager.add(mPolylineOverlay);
-        }
-    }
-
-    private void createClientPolylineOverlay(){
-        mClientPath = new PolylineList();
-        mClientPolylineOverlay = new Polyline(mContext);
-        mClientPolylineOverlay.setColor(Color.BLUE);
-        mOverlayManager.add(mClientPolylineOverlay);
     }
 
     public void addClientMarker(GeoPoint point, float bearing){

@@ -1,5 +1,6 @@
 package com.karvalakki.ippe.karvalakkitracker;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
@@ -14,7 +15,7 @@ import android.view.WindowManager;
 import org.osmdroid.views.MapView;
 
 
-public class MainActivity extends ActionBarActivity  {
+public class MainActivity extends Activity {
 
     static final String TAG = "mainActivity";
 
@@ -27,13 +28,25 @@ public class MainActivity extends ActionBarActivity  {
         setContentView(R.layout.activity_main);
 
         MapView mMapView = (MapView)findViewById(R.id.mapview);
-
-        mMapManager = new MapManager(this, mMapView);
-        gps = new ClientLocationManager(this);
+        if(savedInstanceState == null){
+            mMapManager = new MapManager(this, mMapView);
+            gps = new ClientLocationManager(this);
+        }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        Log.v(TAG, "omg");
+    }
 
     @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+        Log.v(TAG, "omg");
+    }
+
+       @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class PolylineList {
 
-    private static final Integer SIZE = 50;
+    private static final Integer SIZE = 3;
     private ArrayList<GeoPoint> mList;
 
     public PolylineList(){
@@ -24,7 +24,7 @@ public class PolylineList {
     }
 
     private void trimList(){
-        if(mList.size() > 0 && mList.size() > SIZE){
+        if(mList.size() > SIZE){
             getPath().remove(0);
         }
     }
