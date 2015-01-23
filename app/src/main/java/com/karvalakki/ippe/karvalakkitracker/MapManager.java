@@ -32,6 +32,18 @@ public class MapManager implements MapEventsReceiver {
     OverlayManager mOverlayManager;
     MapView mMapView;
 
+    MapTileProviderBasic tileProvider;
+    final ITileSource tileSource;
+
+    public int getmZoomLevel() {
+        mZoomLevel = mMapView.getZoomLevel();
+        return mZoomLevel;
+    }
+    public void setmZoomLevel(int mZoomLevel) {
+        this.mZoomLevel = mZoomLevel;
+        mMapView.getController().setZoom(mZoomLevel);
+    }
+    int mZoomLevel = 13;
 
     private Polyline mPolylineOverlay;
     public Polyline getmPolylineOverlay() {
@@ -67,16 +79,16 @@ public class MapManager implements MapEventsReceiver {
 
         mClientMarkerIcon = mContext.getResources().getDrawable(R.drawable.gpsarrow);
 
-        final MapTileProviderBasic tileProvider = new MapTileProviderBasic (context);
+        tileProvider = new MapTileProviderBasic (context);
         String[] urls = {"http://tiles.kartat.kapsi.fi/peruskartta/"};
-        final ITileSource tileSource = new XYTileSource("kapsi_tms", null, 1, 20, 256, ".jpg", urls);
+        tileSource = new XYTileSource("kapsi_tms", null, 1, 20, 256, ".jpg", urls);
         tileProvider.setTileSource(tileSource);
         mMapView.setTileSource(tileSource);
 
         GeoPoint start = new GeoPoint(66623298, 25872116);
 
         mMapView.getController().setCenter(start);
-        mMapView.getController().setZoom(13);
+        mMapView.getController().setZoom(mZoomLevel);
         mMapView.setMaxZoomLevel(17);
         mMapView.setMinZoomLevel(7);
 
@@ -90,6 +102,13 @@ public class MapManager implements MapEventsReceiver {
 
         mEventBus = EventBus.getDefault();
         mEventBus.register(this);
+    }
+
+    public void unregister(){
+        mMapView.getOverlays().remove(tileProvider);
+        tileProvider.clearTileCache();
+        tileProvider.detach();
+        tileProvider = null;
     }
 
     public void clearPaths() {

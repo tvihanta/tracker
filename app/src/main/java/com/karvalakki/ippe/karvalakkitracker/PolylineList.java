@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class PolylineList {
 
-    private static final Integer SIZE = 3;
+    private static final Integer SIZE = 50;
     private ArrayList<GeoPoint> mList;
 
     public PolylineList(){

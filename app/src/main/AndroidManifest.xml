@@ -30,7 +30,8 @@
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.karvalakki.ippe.karvalakkitracker.MainActivity" />
+                android:value="com.karvalakki.ippe.karvalakkitracker.MainActivity"
+                />
         </activity>
     </application>
 

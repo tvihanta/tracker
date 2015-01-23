@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array
+        name="zoom_levels">
+        <item>17</item>
+        <item>16</item>
+        <item>13</item>
+        <item>11</item>
+        <item>10</item>
+        <item>8</item>
+    </string-array>
+
+</resources>
