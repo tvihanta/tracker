@@ -36,6 +36,8 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        startService(new Intent(TrackerService.class.getName()));
+
         zoomArray = getResources().getStringArray(R.array.zoom_levels);
 
         MapView mMapView = (MapView)findViewById(R.id.mapview);
@@ -48,19 +50,22 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     @Override
     public void onResume() {
         super.onResume();  // Always call the superclass method first
-        Log.v(TAG, "omg");
+        gps.restartGps();
+        Log.v(TAG, "resume");
     }
 
     @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
-        Log.v(TAG, "omg");
+        gps.stopUsingGPS();
+        Log.v(TAG, "pause");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         mMapManager.unregister();
+        gps.stopUsingGPS();
     }
 
     @Override
@@ -111,6 +116,8 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         int index = Arrays.asList(zoomArray).indexOf(s);
         DialogFragment dfr = new showZoomDialog(index);
         dfr.show(getFragmentManager(), "zoom");
+
+        //new HttpAsyncTask().execute("http://hmkcode.appspot.com/rest/controller/get.json");
     }
 
     @Override

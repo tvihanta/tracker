@@ -33,6 +33,14 @@
                 android:value="com.karvalakki.ippe.karvalakkitracker.MainActivity"
                 />
         </activity>
+        <service
+            android:name=".TrackerService"
+            android:process=":remote">
+            <intent-filter>
+                <action
+                    android:name="com.karvalakki.ippe.karvalakkitracker.TrackerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

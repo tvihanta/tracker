@@ -179,6 +179,9 @@ public class MapManager implements MapEventsReceiver {
     }
 
     public void centerOnClient() {
-        mMapView.getController().setCenter(mClientMarker.getPosition());
+        if(mClientMarker != null){
+            mMapView.getController().setCenter(mClientMarker.getPosition());
+        }
+
     }
 }
