@@ -1,5 +1,7 @@
 package com.karvalakki.ippe.karvalakkitracker;
 
+import java.util.List;
+
 public interface TrackerInterface {
-    public TrackerLocation GetLocation();
+    public List<TrackerLocation> getLatestTrackerLocation(String since);
 }

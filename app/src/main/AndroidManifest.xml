@@ -34,7 +34,7 @@
                 />
         </activity>
         <service
-            android:name=".TrackerService"
+            android:name=".TrackerTask"
             android:process=":remote">
             <intent-filter>
                 <action

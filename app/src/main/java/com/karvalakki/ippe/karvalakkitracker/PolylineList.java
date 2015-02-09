@@ -3,6 +3,7 @@ package com.karvalakki.ippe.karvalakkitracker;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class PolylineList {
@@ -12,6 +13,12 @@ public class PolylineList {
 
     public PolylineList(){
         mList = new ArrayList<GeoPoint>(5);
+    }
+    public PolylineList(List<TrackerLocation> path){
+        mList = new ArrayList<GeoPoint>();
+        for (TrackerLocation element : path) {
+            mList.add(element.getGeopoint());
+        }
     }
 
     public void clear(){
@@ -35,5 +42,12 @@ public class PolylineList {
 
     public void setPath(ArrayList<GeoPoint> mList) {
         this.mList = mList;
+    }
+
+    public void addMultiplePoints(List<TrackerLocation> locations) {
+        for (TrackerLocation element : locations) {
+            mList.add(element.getGeopoint());
+        }
+        trimList();
     }
 }

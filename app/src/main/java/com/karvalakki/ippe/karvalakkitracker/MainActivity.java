@@ -1,25 +1,29 @@
 package com.karvalakki.ippe.karvalakkitracker;
 
-import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import org.osmdroid.views.MapView;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 public class MainActivity extends FragmentActivity implements showZoomDialogListener {
@@ -35,8 +39,8 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        startService(new Intent(TrackerService.class.getName()));
+        Intent trackerService = new Intent(TrackerTask.class.getName());
+        startService(trackerService);
 
         zoomArray = getResources().getStringArray(R.array.zoom_levels);
 
@@ -45,19 +49,33 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
             mMapManager = new MapManager(this, mMapView);
             gps = new ClientLocationManager(this);
         }
+        setAlarm();
+    }
+
+    public void setAlarm()
+    {
+        this.registerReceiver( new AlarmReceiver(mMapManager), new IntentFilter("com.karvalakki.ippe.karvalakkitracker") );
+        PendingIntent pintent = PendingIntent.getBroadcast( this, 0, new Intent("com.karvalakki.ippe.karvalakkitracker"), 0 );
+        AlarmManager manager = (AlarmManager)(this.getSystemService( Context.ALARM_SERVICE ));
+
+        // TODO: set interval to settings
+        manager.setRepeating(   AlarmManager.ELAPSED_REALTIME,
+                                SystemClock.elapsedRealtime(),
+                                1000*30,
+                                pintent );
     }
 
     @Override
     public void onResume() {
         super.onResume();  // Always call the superclass method first
-        gps.restartGps();
+        //gps.restartGps();
         Log.v(TAG, "resume");
     }
 
     @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
-        gps.stopUsingGPS();
+        //gps.stopUsingGPS();
         Log.v(TAG, "pause");
     }
 
@@ -116,8 +134,6 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         int index = Arrays.asList(zoomArray).indexOf(s);
         DialogFragment dfr = new showZoomDialog(index);
         dfr.show(getFragmentManager(), "zoom");
-
-        //new HttpAsyncTask().execute("http://hmkcode.appspot.com/rest/controller/get.json");
     }
 
     @Override
@@ -125,6 +141,10 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         Log.v(TAG, "dialogEvent");
         int index = Integer.parseInt(zoomArray[i]);
         mMapManager.setmZoomLevel(index);
+    }
+
+    public void centerOnTracker(View view) {
+        mMapManager.centerOnLastPath();
     }
 }
 

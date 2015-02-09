@@ -42,6 +42,7 @@
                 android:layout_height="58dp"
                 android:src="@drawable/ic_action_locate"
                 android:text="Device"
+                android:onClick="centerOnTracker"
                 android:layout_weight="1"
                 />
 
