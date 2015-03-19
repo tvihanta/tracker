@@ -48,8 +48,6 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent trackerService = new Intent(TrackerTask.class.getName());
-        startService(trackerService);
 
         mDistance = (TextView)findViewById(R.id.distance);
         mTimeSince = (TextView)findViewById(R.id.time);
