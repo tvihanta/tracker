@@ -11,6 +11,8 @@ public class TrackerLocation {
     float lon;
     float bearing;
     float speed;
+    String created;
+    String since;
 
     public TrackerLocation(long lat, long lon, long bearing, long speed) {
         this.lat = lat;
@@ -55,6 +57,11 @@ public class TrackerLocation {
         return new GeoPoint(lat, lon);
     }
 
-
+    public String getSince() {
+        return since;
+    }
+    public void setSince(String since) {
+        this.since = since;
+    }
 
 }

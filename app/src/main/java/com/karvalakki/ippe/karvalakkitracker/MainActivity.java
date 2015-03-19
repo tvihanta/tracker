@@ -4,14 +4,11 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -19,11 +16,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
+import com.ocpsoft.pretty.time.PrettyTime;
+
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import de.greenrobot.event.EventBus;
 
 
 public class MainActivity extends FragmentActivity implements showZoomDialogListener {
@@ -32,15 +35,25 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
 
     ClientLocationManager gps;
     MapManager mMapManager;
+    EventBus mEventBus;
 
     String[] zoomArray;
+    TextView mDistance;
+    TextView mTimeSince;
+    TextView mSpeed;
 
+
+    Handler mHandler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Intent trackerService = new Intent(TrackerTask.class.getName());
         startService(trackerService);
+
+        mDistance = (TextView)findViewById(R.id.distance);
+        mTimeSince = (TextView)findViewById(R.id.time);
+        mSpeed = (TextView)findViewById(R.id.speed);
 
         zoomArray = getResources().getStringArray(R.array.zoom_levels);
 
@@ -50,6 +63,50 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
             gps = new ClientLocationManager(this);
         }
         setAlarm();
+        mEventBus = EventBus.getDefault();
+        mEventBus.register(this);
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Date d = mMapManager.getLatestTrackerUpdateDate();
+                StringBuffer sb = new StringBuffer();
+                long diffInSeconds = (new Date().getTime() - d.getTime()) / 1000;
+                long diff[] = new long[] { 0, 0, 0, 0 };
+                /* sec */diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+                /* min */diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+                /* hours */diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
+                /* days */diff[0] = (diffInSeconds = (diffInSeconds / 24));
+                String times[] = new String[] {"d", "h", "min", "s"};
+                boolean b = false;
+                for(int i = 0; i < diff.length; i++) {
+                    if(diff[i] > 0 || b==true){
+                        b = true; // one previous time >0 found already. -> show rest zeroes
+                        sb.append(diff[i]);
+                        sb.append(times[i]+" ");
+                    }
+                }
+                mTimeSince.setText(sb);
+                mHandler.postDelayed(this, 1000*1);
+            }
+        };
+        mHandler.post(runnable);
+
+    }
+
+    /**
+     * set labels on ui
+     * @param event
+     */
+    public void onEvent(TrackerLocationEvent event) {
+        Log.v(TAG, "Tracker Gps Event");
+        if(event.loc != null) {
+            GeoPoint clientLocation = mMapManager.getmClientPos();
+            mDistance.setText(Integer.toString(clientLocation.distanceTo(event.loc)) + " m");
+            mSpeed.setText(Float.toString(event.gettLoc().getSpeed()) + "km/h");
+
+
+        }
     }
 
     public void setAlarm()

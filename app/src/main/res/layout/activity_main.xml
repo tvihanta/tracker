@@ -15,6 +15,8 @@
         tilesource="Mapnik"
         android:layout_weight="1" />
 
+
+
     <TableLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -25,6 +27,54 @@
         android:background="@color/background_material_dark"
         android:stretchColumns="*"
         >
+        <TableRow>
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="40dp"
+                android:text="-- m"
+                android:id="@+id/distance"
+                android:autoText="false"
+                android:editable="false"
+                android:lines="1"
+                android:textColor="#ffff8a00"
+                android:textIsSelectable="false"
+                android:textSize="@dimen/abc_text_size_title_material"
+                android:textAlignment="inherit"
+                android:gravity="left|center_vertical"
+                android:layout_column="0"
+                android:layout_span="1" />
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="40dp"
+                android:text="-- m"
+                android:id="@+id/speed"
+                android:autoText="false"
+                android:editable="false"
+                android:lines="1"
+                android:textColor="#ffff8a00"
+                android:textIsSelectable="false"
+                android:textSize="@dimen/abc_text_size_title_material"
+                android:textAlignment="inherit"
+                android:gravity="left|center_vertical"
+                android:layout_column="1"
+                android:layout_span="1" />
+
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="40dp"
+                android:text="-- s"
+                android:id="@+id/time"
+                android:autoText="false"
+                android:editable="false"
+                android:lines="1"
+                android:textColor="#ffff8a00"
+                android:textIsSelectable="false"
+                android:textSize="@dimen/abc_text_size_title_material"
+                android:textAlignment="inherit"
+                android:gravity="center_vertical|right"
+                android:layout_column="2"
+                android:layout_span="2" />
+        </TableRow>
         <TableRow >
             <ImageButton
                 android:id="@+id/action_center_client"

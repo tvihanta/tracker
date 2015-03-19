@@ -30,4 +30,5 @@ dependencies {
     compile 'org.slf4j:slf4j-simple:1.6.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.android.support:support-v4:21.0.3'
+    compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
 }

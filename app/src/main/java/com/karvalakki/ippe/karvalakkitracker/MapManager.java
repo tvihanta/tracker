@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.karvalakki.ippe.karvalakkitracker.R;
 
@@ -22,9 +23,14 @@ import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
 import de.greenrobot.event.EventBus;
 
 
@@ -37,16 +43,45 @@ public class MapManager implements MapEventsReceiver {
     private EventBus mEventBus;
     OverlayManager mOverlayManager;
     MapView mMapView;
+    PolylineList mClientPath = new PolylineList();
+    Drawable mClientMarkerIcon;
+    Drawable mTrackerIcon;
+
+    public GeoPoint getmClientPos() {
+        return mClientPos;
+    }
+    public void setmClientPos(GeoPoint mClientPos) {
+        this.mClientPos = mClientPos;
+    }
+    private GeoPoint mClientPos;
 
     public String getLatestTrackerUpdateTimeStamp() {
         return latestTrackerUpdateTimeStamp;
     }
-
+    public Date getLatestTrackerUpdateDate(){
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        Date date = null;
+        try {
+            date = format.parse(latestTrackerUpdateTimeStamp);
+            return date;
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                date = format.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
+            return date;
+        }
+    }
     public void setLatestTrackerUpdateTimeStamp() {
         //2015-02-08 16:59:00
         this.latestTrackerUpdateTimeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
     }
-
+    public void setLatestTrackerUpdateTimeStamp(String d) {
+        //2015-02-08 16:59:00
+        this.latestTrackerUpdateTimeStamp = d;
+    }
     String latestTrackerUpdateTimeStamp = null;
 
     MapTileProviderBasic tileProvider;
@@ -87,16 +122,13 @@ public class MapManager implements MapEventsReceiver {
         return mClientPolylineOverlay;
     }
 
-    PolylineList mClientPath = new PolylineList();
-    Drawable mClientMarkerIcon;
-    Drawable mTrackerIcon;
 
     public MapManager(Context context, MapView mapview) {
         mMapView = mapview;
         mContext = context;
 
         mClientMarkerIcon = mContext.getResources().getDrawable(R.drawable.gpsarrow);
-        mTrackerIcon = mContext.getResources().getDrawable(R.drawable.gpsarrow);
+        mTrackerIcon = mContext.getResources().getDrawable(R.drawable.tracker_icon);
 
         tileProvider = new MapTileProviderBasic (context);
         String[] urls = {"http://tiles.kartat.kapsi.fi/peruskartta/"};
@@ -125,6 +157,7 @@ public class MapManager implements MapEventsReceiver {
 
         mEventBus = EventBus.getDefault();
         mEventBus.register(this);
+
     }
 
     public void unregister(){
@@ -144,11 +177,11 @@ public class MapManager implements MapEventsReceiver {
         mMapView.invalidate();
     }
 
-
     public void onEvent(ClientLocationEvent event) {
         Log.v(TAG, "client Gps Event");
         if(event != null && event.loc != null){
             GeoPoint point = new GeoPoint(event.loc.getLatitude(), event.loc.getLongitude());
+            mClientPos = point;
             if(mClientMarker == null){
                 addClientMarker(point,
                                 event.loc.getBearing()
@@ -160,14 +193,13 @@ public class MapManager implements MapEventsReceiver {
 
             //TODO maybe add a setting for showing path
             addPathPoint(point, mClientPath, getmClientPolylineOverlay());
-
         }
     }
 
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint geoPoint) {
         Log.v(TAG, geoPoint.toString());
-        addPathPoint(geoPoint, mTrackerPath, getmPolylineOverlay());
+        //addPathPoint(geoPoint, mTrackerPath, getmPolylineOverlay());
         return false;
     }
 
@@ -219,10 +251,14 @@ public class MapManager implements MapEventsReceiver {
     }
 
     public void setTrackerPosition(List<TrackerLocation> locations) {
-        GeoPoint lastPoint;
-        currentTrackerPath = locations;
-        setLatestTrackerUpdateTimeStamp();
+        GeoPoint lastPoint = null;
+        TrackerLocation lastTrackerLocation = null;
         if( locations != null && locations.size() > 0){
+            currentTrackerPath = locations;
+
+            lastTrackerLocation = locations.get(locations.size()-1);
+            setLatestTrackerUpdateTimeStamp(lastTrackerLocation.created);
+
             //if there is old path -> append
             if(mTrackerPath.getPath().size() > 0){
                 mTrackerPath.addMultiplePoints(locations);
@@ -232,7 +268,7 @@ public class MapManager implements MapEventsReceiver {
 
             lastPoint = mTrackerPath.getPath().get(mTrackerPath.getPath().size()-1);
             if(mTrackerMarker == null){
-                addTrackerMarker(lastPoint,0);
+                addTrackerMarker(lastPoint, 0);
             }else{
                 mTrackerMarker.setPosition(lastPoint);
                 mTrackerMarker.setRotation(0);
@@ -240,11 +276,16 @@ public class MapManager implements MapEventsReceiver {
 
             getmPolylineOverlay().setPoints(mTrackerPath.getPath());
             mMapView.invalidate();
+
         }
+
+        TrackerLocationEvent evt = new TrackerLocationEvent(lastPoint);
+        evt.settLoc(lastTrackerLocation);
+        evt.setLastSince(getLatestTrackerUpdateDate());
+        mEventBus.getDefault().post(evt);
     }
 
     public void centerOnLastPath() {
-
         if(mTrackerPath.getPath().size() > 0){
             GeoPoint point = mTrackerPath.getPath().get(mTrackerPath.getPath().size()-1);
             mMapView.getController().setCenter(point);

@@ -11,21 +11,22 @@ import android.util.Log;
 import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
-    private final static String TAG= "AlarmReceiver";
+    private final static String TAG = "AlarmReceiver";
     MapManager mMapManager;
-
 
     public AlarmReceiver(MapManager manager){
         mMapManager = manager;
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         Log.v(TAG, "onReceive");
+
         new TrackerTask(){
             @Override public void onPostExecute(List<TrackerLocation> locations)
             {
                 mMapManager.setTrackerPosition(locations);
+
             }
         }.execute(mMapManager.getLatestTrackerUpdateTimeStamp());
     }
