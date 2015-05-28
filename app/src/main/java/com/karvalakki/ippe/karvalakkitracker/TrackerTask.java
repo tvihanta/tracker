@@ -1,6 +1,7 @@
 package com.karvalakki.ippe.karvalakkitracker;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -18,7 +19,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TrackerTask extends AsyncTask<String, String, List<TrackerLocation>> {
-
+    private Context mContext;
+    public TrackerTask (Context context){
+        mContext = context;
+    }
     private final String TAG = "TrackerTask";
 
     @Override
@@ -26,7 +30,7 @@ public class TrackerTask extends AsyncTask<String, String, List<TrackerLocation>
 
         //TODO: select interface to use according to param etc...
         String timestamp = params[0];
-        TrackerInterface tk = new TK102();
+        TrackerInterface tk = new TK102(mContext);
         return tk.getLatestTrackerLocation(timestamp);
     }
 

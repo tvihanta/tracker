@@ -2,8 +2,10 @@ package com.karvalakki.ippe.karvalakkitracker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -65,7 +67,7 @@ public class MapManager implements MapEventsReceiver {
             date = format.parse(latestTrackerUpdateTimeStamp);
             return date;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             try {
                 date = format.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             } catch (ParseException e1) {
@@ -139,8 +141,11 @@ public class MapManager implements MapEventsReceiver {
         mMapView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         GeoPoint start = new GeoPoint(66623298, 25872116);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+        int defaultZoom = Integer.parseInt(sharedPref.getString("pref_zoom", "15"));
+
         mMapView.getController().setCenter(start);
-        mMapView.getController().setZoom(mZoomLevel);
+        mMapView.getController().setZoom(defaultZoom);
         mMapView.setMaxZoomLevel(17);
         mMapView.setMinZoomLevel(7);
 

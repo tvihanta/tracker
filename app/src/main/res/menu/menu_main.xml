@@ -10,6 +10,12 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_tracking"
+        android:title="@string/setting_track_on"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        />
+    <item
         android:id="@+id/action_clear_paths"
         android:title="@string/action_clear"
         android:orderInCategory="100"

@@ -20,9 +20,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        Log.v(TAG, "onReceive");
-
-        new TrackerTask(){
+        Log.v(TAG, "Polling triggered");
+        new TrackerTask(context){
             @Override public void onPostExecute(List<TrackerLocation> locations)
             {
                 mMapManager.setTrackerPosition(locations);

@@ -90,11 +90,11 @@
                 android:id="@+id/action_center_tracker"
                 android:layout_width="0px"
                 android:layout_height="58dp"
-                android:src="@drawable/ic_action_locate"
+                android:src="@drawable/ic_action_locate_off"
                 android:text="Device"
                 android:onClick="centerOnTracker"
                 android:layout_weight="1"
-                />
+               />
 
             <ImageButton
                 android:id="@+id/action_zoom"

@@ -8,24 +8,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
-
-import com.ocpsoft.pretty.time.PrettyTime;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 
@@ -42,8 +43,14 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     TextView mTimeSince;
     TextView mSpeed;
 
+    PendingIntent mPintent;
+    AlarmManager mAlarmManager;
 
     Handler mHandler = new Handler();
+
+    private Menu mMenu;
+    boolean mTracking = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +67,7 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
             mMapManager = new MapManager(this, mMapView);
             gps = new ClientLocationManager(this);
         }
-        setAlarm();
+
         mEventBus = EventBus.getDefault();
         mEventBus.register(this);
 
@@ -102,22 +109,24 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
             GeoPoint clientLocation = mMapManager.getmClientPos();
             mDistance.setText(Integer.toString(clientLocation.distanceTo(event.loc)) + " m");
             mSpeed.setText(Float.toString(event.gettLoc().getSpeed()) + "km/h");
-
-
         }
     }
 
-    public void setAlarm()
+    public void startTracking()
     {
         this.registerReceiver( new AlarmReceiver(mMapManager), new IntentFilter("com.karvalakki.ippe.karvalakkitracker") );
-        PendingIntent pintent = PendingIntent.getBroadcast( this, 0, new Intent("com.karvalakki.ippe.karvalakkitracker"), 0 );
-        AlarmManager manager = (AlarmManager)(this.getSystemService( Context.ALARM_SERVICE ));
+        mPintent = PendingIntent.getBroadcast( this, 0, new Intent("com.karvalakki.ippe.karvalakkitracker"), 0 );
+        mAlarmManager = (AlarmManager)(this.getSystemService( Context.ALARM_SERVICE ));
 
         // TODO: set interval to settings
-        manager.setRepeating(   AlarmManager.ELAPSED_REALTIME,
+        mAlarmManager.setRepeating(   AlarmManager.ELAPSED_REALTIME,
                                 SystemClock.elapsedRealtime(),
                                 1000*30,
-                                pintent );
+                                mPintent );
+    }
+    public void cancelTracking(){
+        mAlarmManager.cancel(mPintent);
+        mPintent = null;
     }
 
     @Override
@@ -159,7 +168,22 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mMenu = menu;
         return true;
+    }
+
+    private void updateUITracking() {
+        MenuItem tracking = mMenu.findItem(R.id.action_tracking);
+        if (mTracking) {
+            tracking.setTitle(getResources().getString(R.string.setting_track_off));
+            ImageButton btn = (ImageButton)findViewById(R.id.action_center_tracker);
+            btn.setImageResource(R.drawable.ic_action_locate);
+
+        } else {
+            tracking.setTitle(getResources().getString(R.string.setting_track_on));
+            ImageButton btn = (ImageButton)findViewById(R.id.action_center_tracker);
+            btn.setImageResource(R.drawable.ic_action_locate_off);
+        }
     }
 
     @Override
@@ -171,6 +195,16 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         switch (id){
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.action_tracking:
+                if(mTracking){
+                    mTracking = false;
+                    cancelTracking();
+                } else{
+                    mTracking = true;
+                    startTracking();
+                }
+                updateUITracking();
                 break;
             case R.id.action_clear_paths:
                 mMapManager.clearPaths();
@@ -201,5 +235,8 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
     public void centerOnTracker(View view) {
         mMapManager.centerOnLastPath();
     }
+
+
+
 }
 

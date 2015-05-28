@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <CheckBoxPreference
-        android:key="pref_sync"
-        android:title="ss"
-        android:summary="ss22"
-        android:defaultValue="true" />
+    <ListPreference
+        android:key="pref_zoom"
+        android:title="@string/zoom_level"
+        android:entries="@array/zoom_levels"
+        android:entryValues="@array/zoom_levels"
+        android:defaultValue="15"
+        />
 </PreferenceScreen>

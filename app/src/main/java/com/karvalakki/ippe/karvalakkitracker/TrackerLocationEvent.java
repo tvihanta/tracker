@@ -7,7 +7,6 @@ import org.osmdroid.util.GeoPoint;
 import java.util.Date;
 
 /**
- * Created by ippe on 9.2.2015.
  */
 public class TrackerLocationEvent {
 
