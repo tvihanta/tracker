@@ -73,7 +73,7 @@
                 android:textAlignment="inherit"
                 android:gravity="center_vertical|right"
                 android:layout_column="2"
-                android:layout_span="2" />
+                android:layout_span="1" />
         </TableRow>
         <TableRow >
             <ImageButton

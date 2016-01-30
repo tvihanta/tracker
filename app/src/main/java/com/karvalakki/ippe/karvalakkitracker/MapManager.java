@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import de.greenrobot.event.EventBus;
 
@@ -61,11 +62,19 @@ public class MapManager implements MapEventsReceiver {
         return latestTrackerUpdateTimeStamp;
     }
     public Date getLatestTrackerUpdateDate(){
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         Date date = null;
         try {
             date = format.parse(latestTrackerUpdateTimeStamp);
-            return date;
+
+            DateFormat local = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            local.setTimeZone(TimeZone.getDefault());
+            String localString = local.format(date);
+
+            Date formattedDate = local.parse(localString);
+            return formattedDate;
         } catch (Exception e) {
             //e.printStackTrace();
             try {
@@ -106,7 +115,7 @@ public class MapManager implements MapEventsReceiver {
         if(mPolylineOverlay == null)
         {
             mPolylineOverlay  = new Polyline(mContext);
-            mPolylineOverlay.setColor(Color.MAGENTA);
+            mPolylineOverlay.setColor(mContext.getResources().getColor(R.color.orange) );
             mOverlayManager.add(mPolylineOverlay);
         }
         return mPolylineOverlay;

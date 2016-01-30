@@ -29,7 +29,13 @@ import java.util.Date;
 
 import de.greenrobot.event.EventBus;
 
-
+/**
+ * TODO:
+ *
+ * ui & settings handling for changing tracker devices
+ * Ui for showing rest of data from tracker
+ *
+ */
 public class MainActivity extends FragmentActivity implements showZoomDialogListener {
 
     static final String TAG = "mainActivity";
@@ -121,7 +127,7 @@ public class MainActivity extends FragmentActivity implements showZoomDialogList
         // TODO: set interval to settings
         mAlarmManager.setRepeating(   AlarmManager.ELAPSED_REALTIME,
                                 SystemClock.elapsedRealtime(),
-                                1000*30,
+                                1000*10,
                                 mPintent );
     }
     public void cancelTracking(){
